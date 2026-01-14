@@ -204,6 +204,12 @@ const UI = {
         statusDisplay.textContent = message;
     },
 
+    // Show instructions for the current category
+    showInstructions: function(text) {
+        const instructionDisplay = document.getElementById('instruction-display');
+        instructionDisplay.textContent = text;
+    },
+
     // Show/hide recording indicator
     showRecordingIndicator: function(show) {
         const indicator = document.getElementById('recording-indicator');

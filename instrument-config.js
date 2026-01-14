@@ -24,7 +24,7 @@ const InstrumentConfig = {
     // Game patterns (notes and durations for each category/level)
     // Game patterns (notes and durations for each category/level)
     patterns: {
-        "c-g": {
+        "g-c": {
             "level1": [
                 { "notes": ["G3"], "durations": [4] },
                 { "notes": ["C4"], "durations": [4] }
@@ -286,8 +286,16 @@ const InstrumentConfig = {
         }
     },
 
+    // Instructions for each category (displayed during gameplay)
+    instructions: {
+        'g-c': "Put your left index finger on G below middle C and your right index finger on middle C",
+        'c-d-e': "Put your thumb on middle C. This game uses C, D, and E.",
+        'twinkle': "This game uses C, D, E, F, G, and A.",
+        'lightly-row': "This game uses C, D, E, F, and G."
+    },
+
     victoryPatterns: {
-        'c-g': {
+        'g-c': {
             notes: [196.00, 261.63, 196.00, 261.63, 196.00, 261.63, 196.00, 261.63],
             description: 'Alternating G3 and C4'
         },

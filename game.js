@@ -22,6 +22,10 @@ const Game = {
 
         console.log(`Game initialized: ${category} Level ${level}`);
 
+        // Show instructions for this category
+        const instruction = InstrumentConfig.instructions[category] || '';
+        UI.showInstructions(instruction);
+
         // Show initial state
         UI.clearPattern();
         UI.updateProgress(1, this.totalQuestions);
