@@ -8,7 +8,7 @@ const Celebrations = {
     particles: [],
     animationId: null,
     level: 'good',
-    emojis: ['🦄', '🦕', '🦖', '⭐', '✨', '🌟', '💫', '🎻'],
+    emojis: ['🦕', '🦕', '🦖', '⭐', '✨', '🌟', '💫', '🎹'],
 
     // Initialize the canvas
     init: function() {

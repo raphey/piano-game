@@ -266,7 +266,7 @@ const UI = {
         const scoreText = document.getElementById('celebration-score');
 
         if (level === 'perfect') {
-            title.textContent = 'PERFECT! 🌟🎻🦄';
+            title.textContent = 'PERFECT! 🌟🎹🦕';
             scoreText.textContent = `You got ${score} out of ${total}.\nLet's play again!`;
         } else if (level === 'great') {
             title.textContent = 'Amazing! ✨🎵';
