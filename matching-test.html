@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matching Algorithm Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .info h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        button {
+            font-size: 18px;
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pattern {
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 10px;
+        }
+        #status {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f0f0f0;
+            border-radius: 10px;
+            min-height: 60px;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        .results h3 {
+            margin-top: 0;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .column {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .column h4 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .slice-list {
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error-display {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .pass {
+            color: #43a047;
+        }
+        .fail {
+            color: #f5576c;
+        }
+        .tolerance-control {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 10px;
+        }
+        .tolerance-control label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .tolerance-control input[type="range"] {
+            width: 100%;
+        }
+        .tolerance-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎻 Matching Algorithm Test</h1>
+
+        <div class="info">
+            <h3>Test Pattern:</h3>
+            <div class="pattern">A4 - E5 - A5 - E5</div>
+            <p><strong>4 beats total</strong> (1 beat per note) at 100 BPM</p>
+            <p>Play each note for the full beat duration</p>
+        </div>
+
+        <div class="tolerance-control">
+            <label>Tolerance (Error Threshold):</label>
+            <input type="range" id="tolerance-slider" min="0" max="10" value="5" step="0.1">
+            <div class="tolerance-value" id="tolerance-value">5</div>
+            <p style="font-size: 12px; margin-top: 10px;">
+                Lower = stricter matching. Higher = more forgiving.
+            </p>
+        </div>
+
+        <div class="controls">
+            <button id="start-btn" onclick="startChallenge()" disabled>▶️ Start Challenge</button>
+            <button id="beep-test-btn" onclick="startBeepTest()" disabled>🔊 Beep Test (with compensation)</button>
+        </div>
+
+        <div id="status">Loading...</div>
+
+        <div class="results" id="results" style="display: none;">
+            <h3>Results:</h3>
+            <div class="error-display" id="error-display"></div>
+            <div class="comparison">
+                <div class="column">
+                    <h4>Reference Pattern:</h4>
+                    <div class="slice-list" id="reference-slices"></div>
+                </div>
+                <div class="column">
+                    <h4>Your Recording:</h4>
+                    <div class="slice-list" id="recorded-slices"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioBuffers = {};
+
+        // Pattern definition
+        const tempo = 100; // BPM
+        const beatDuration = 60 / tempo; // seconds per beat
+        const sliceInterval = beatDuration / 2; // 8th note slices (half a beat)
+        const pattern = [
+            { note: 'A4', duration: 1.0 },
+            { note: 'E5', duration: 1.0 },
+            { note: 'A5', duration: 1.0 },
+            { note: 'E5', duration: 1.0 }
+        ];
+
+        // Samples and their MIDI numbers
+        const sampleNotes = {
+            'A3': 57,
+            'B3': 59,
+            'C4': 60,
+            'D4': 62,
+            'E4': 64,
+            'A4': 69,
+            'E5': 76,
+            'A5': 81
+        };
+
+        let referenceTimeSeries = [];
+        let recordedTimeSeries = [];
+        let isRecording = false;
+        let microphone = null;
+        let analyser = null;
+        let microphoneStream = null;
+        let micPermissionGranted = false;
+        let audioRecorder = null;
+        let recordedChunks = [];
+        let recordingStartTime = null;
+        let goClickTime = null;
+
+        // Update tolerance display
+        document.getElementById('tolerance-slider').addEventListener('input', (e) => {
+            document.getElementById('tolerance-value').textContent = e.target.value;
+        });
+
+        // Load samples
+        async function loadSamples() {
+            for (const sampleName of Object.keys(sampleNotes)) {
+                const response = await fetch(`samples/${sampleName}.wav`);
+                const arrayBuffer = await response.arrayBuffer();
+                audioBuffers[sampleName] = await audioContext.decodeAudioData(arrayBuffer);
+            }
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('beep-test-btn').disabled = false;
+            document.getElementById('status').textContent = 'Ready! Click "Start Challenge" to begin.';
+        }
+
+
+        // Beep test to verify latency compensation
+        async function startBeepTest() {
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('beep-test-btn').disabled = true;
+            document.getElementById('results').style.display = 'none';
+
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+
+            // Request microphone permission upfront if not already granted
+            if (!micPermissionGranted) {
+                try {
+                    document.getElementById('status').textContent = 'Requesting microphone permission...';
+                    microphoneStream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: false,
+                            autoGainControl: false,
+                            noiseSuppression: false
+                        }
+                    });
+                    micPermissionGranted = true;
+                    document.getElementById('status').textContent = 'Microphone ready!';
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                    document.getElementById('status').textContent = 'Error: Microphone access denied. ' + error.message;
+                    document.getElementById('start-btn').disabled = false;
+                    document.getElementById('beep-test-btn').disabled = false;
+                    return;
+                }
+            }
+
+            // Generate reference (4 beeps)
+            referenceTimeSeries = generateReferenceTimeSeries(pattern);
+
+            // Play 4 beeps and record
+            document.getElementById('status').textContent = 'Playing beeps and recording...';
+
+            // Start recording
+            recordedChunks = [];
+            audioRecorder = new MediaRecorder(microphoneStream);
+            audioRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+            audioRecorder.onstop = async () => {
+                await analyzeRecording();
+            };
+
+            recordingStartTime = audioContext.currentTime;
+            intendedStartTime = audioContext.currentTime;
+            audioRecorder.start();
+            isRecording = true;
+
+            // Play 4 beeps, one per beat
+            const totalDuration = 4 * beatDuration;
+            for (let i = 0; i < 4; i++) {
+                playClick();
+                await new Promise(resolve => setTimeout(resolve, beatDuration * 1000));
+            }
+
+            // Stop recording
+            audioRecorder.stop();
+            isRecording = false;
+        }
+
+        // Main challenge flow: play reference, countdown, record
+        async function startChallenge() {
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('results').style.display = 'none';
+
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+
+            // Request microphone permission upfront if not already granted
+            if (!micPermissionGranted) {
+                try {
+                    document.getElementById('status').textContent = 'Requesting microphone permission...';
+                    microphoneStream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: false,
+                            autoGainControl: false,
+                            noiseSuppression: false
+                        }
+                    });
+                    micPermissionGranted = true;
+                    document.getElementById('status').textContent = 'Microphone ready!';
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                    document.getElementById('status').textContent = 'Error: Microphone access denied. ' + error.message;
+                    document.getElementById('start-btn').disabled = false;
+                    return;
+                }
+            }
+
+            // Step 1: Start recording FIRST (so it's ready when countdown starts)
+            document.getElementById('status').textContent = 'Starting...';
+            recordedChunks = [];
+            audioRecorder = new MediaRecorder(microphoneStream);
+            audioRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+            audioRecorder.onstop = async () => {
+                await analyzeRecording();
+            };
+
+            recordingStartTime = audioContext.currentTime;
+            console.log(`Recording started at: ${recordingStartTime.toFixed(3)}s`);
+            audioRecorder.start();
+            isRecording = true;
+
+            // Step 2: Play reference pattern (while recording is starting up)
+            document.getElementById('status').textContent = '🎻 Listen to the reference pattern...';
+            referenceTimeSeries = generateReferenceTimeSeries(pattern);
+
+            const startTime = audioContext.currentTime;
+            let currentTime = startTime;
+
+            pattern.forEach(noteInfo => {
+                const { note, duration } = noteInfo;
+                const durationInSeconds = duration * beatDuration;
+
+                const source = audioContext.createBufferSource();
+                source.buffer = audioBuffers[note];
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 0.8;
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                source.start(currentTime);
+                source.stop(currentTime + durationInSeconds);
+
+                currentTime += durationInSeconds;
+            });
+
+            const totalDuration = pattern.reduce((sum, n) => sum + n.duration, 0) * beatDuration;
+
+            // Step 3: Wait for reference to finish, then play countdown
+            setTimeout(async () => {
+                // Recording is already running, no startup delay!
+                // Countdown with clicks
+                document.getElementById('status').textContent = 'Get ready... 1';
+                playClick();
+                await new Promise(resolve => setTimeout(resolve, beatDuration * 1000));
+
+                document.getElementById('status').textContent = '2';
+                playClick();
+                await new Promise(resolve => setTimeout(resolve, beatDuration * 1000));
+
+                document.getElementById('status').textContent = 'Ready';
+                playClick();
+                await new Promise(resolve => setTimeout(resolve, beatDuration * 1000));
+
+                document.getElementById('status').textContent = 'GO!';
+                goClickTime = audioContext.currentTime;
+                console.log(`GO! click at: ${goClickTime.toFixed(3)}s (${((goClickTime - recordingStartTime) * 1000).toFixed(1)}ms into recording)`);
+                playClick();
+
+                await new Promise(resolve => setTimeout(resolve, beatDuration * 1000));
+
+                // User should be playing now
+                document.getElementById('status').textContent = '🔴 RECORDING - Play now!';
+
+                // Stop recording after pattern duration
+                const totalDuration = pattern.reduce((sum, n) => sum + n.duration, 0) * beatDuration;
+                setTimeout(() => {
+                    audioRecorder.stop();
+                    isRecording = false;
+                }, totalDuration * 1000);
+            }, totalDuration * 1000);
+        }
+
+        // Play metronome click
+        function playClick() {
+            const clickOsc = audioContext.createOscillator();
+            const clickGain = audioContext.createGain();
+
+            clickOsc.connect(clickGain);
+            clickGain.connect(audioContext.destination);
+
+            clickOsc.frequency.value = 1000;
+            clickGain.gain.value = 0.3;
+
+            clickOsc.start(audioContext.currentTime);
+            clickOsc.stop(audioContext.currentTime + 0.05);
+        }
+
+
+        // Generate reference time series from pattern
+        function generateReferenceTimeSeries(pattern) {
+            const series = [];
+            let currentTime = 0;
+
+            console.log('Generating reference time series:');
+            console.log('tempo:', tempo, 'BPM');
+            console.log('beatDuration:', beatDuration, 'seconds');
+            console.log('sliceInterval:', sliceInterval, 'seconds');
+
+            pattern.forEach((noteInfo, index) => {
+                const { note, duration } = noteInfo;
+                const durationInSeconds = duration * beatDuration;
+                const numSlices = Math.round(durationInSeconds / sliceInterval);
+                const frequency = midiToFrequency(sampleNotes[note]);
+
+                console.log(`Note ${index}: ${note}, duration=${duration} beats, durationInSeconds=${durationInSeconds}, numSlices=${numSlices}`);
+
+                for (let i = 0; i < numSlices; i++) {
+                    series.push(frequency);
+                    currentTime += sliceInterval;
+                }
+            });
+
+            console.log('Total reference slices:', series.length);
+            return series;
+        }
+
+        // Convert MIDI to frequency
+        function midiToFrequency(midi) {
+            return 440 * Math.pow(2, (midi - 69) / 12);
+        }
+
+        // Detect where the GO! click appears in the recording
+        function findGoClickInRecording(audioData, sampleRate) {
+            // GO! should be around 4.2s into the recording
+            // (reference pattern 2.4s + 3 beat delays = 2.4s + 1.8s = 4.2s)
+            const searchStartMs = 4000;
+            const searchEndMs = 4600;
+            const searchStartSample = Math.floor((searchStartMs / 1000) * sampleRate);
+            const searchEndSample = Math.floor((searchEndMs / 1000) * sampleRate);
+
+            const checkInterval = 0.01; // Check every 10ms
+            const checkSamples = Math.round(checkInterval * sampleRate);
+
+            let lastClickPosition = -1;
+            let maxRms = 0;
+
+            // Find the loudest transient in the search window
+            for (let windowStart = searchStartSample; windowStart < searchEndSample; windowStart += checkSamples) {
+                const windowEnd = Math.min(windowStart + checkSamples, audioData.length);
+
+                let rms = 0;
+                for (let i = windowStart; i < windowEnd; i++) {
+                    rms += audioData[i] * audioData[i];
+                }
+                rms = Math.sqrt(rms / (windowEnd - windowStart));
+
+                if (rms > maxRms && rms > 0.02) {
+                    maxRms = rms;
+                    lastClickPosition = windowStart;
+                }
+            }
+
+            if (lastClickPosition >= 0) {
+                console.log(`Found GO! click at sample ${lastClickPosition} (${(lastClickPosition / sampleRate * 1000).toFixed(1)}ms, RMS: ${maxRms.toFixed(4)})`);
+                return lastClickPosition;
+            }
+
+            console.log('Could not detect GO! click in recording');
+            return searchStartSample; // Default to expected position
+        }
+
+        // Analyze recorded audio after recording completes
+        async function analyzeRecording() {
+            document.getElementById('status').textContent = 'Analyzing recording...';
+
+            try {
+                // Combine recorded chunks into a blob
+                const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+
+                // Decode audio blob
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                const sampleRate = audioBuffer.sampleRate;
+                const audioData = audioBuffer.getChannelData(0);
+                const sliceSamples = Math.round(sliceInterval * sampleRate);
+                const windowSize = 4096;
+
+                console.log(`Sample rate: ${sampleRate} Hz`);
+                console.log(`Slice samples: ${sliceSamples} (${(sliceSamples / sampleRate * 1000).toFixed(3)}ms per slice)`);
+                console.log(`Total recording duration: ${(audioData.length / sampleRate * 1000).toFixed(1)}ms`);
+
+                // We know when we SCHEDULED the GO! click
+                const goClickScheduledTime = goClickTime - recordingStartTime; // seconds into recording
+                const goClickScheduledSample = Math.round(goClickScheduledTime * sampleRate);
+                console.log(`GO! click SCHEDULED at ${(goClickScheduledTime * 1000).toFixed(1)}ms into recording`);
+
+                // Detect where GO! click ACTUALLY appears in the recording
+                const goClickDetectedSample = findGoClickInRecording(audioData, sampleRate);
+                const goClickDetectedTime = goClickDetectedSample / sampleRate;
+                console.log(`GO! click DETECTED at ${(goClickDetectedTime * 1000).toFixed(1)}ms into recording`);
+
+                // The difference is the round-trip latency (output + input)
+                const latencyMs = (goClickDetectedTime - goClickScheduledTime) * 1000;
+                console.log(`Round-trip latency: ${latencyMs.toFixed(1)}ms`);
+
+                // User plays one beat after the detected GO! click
+                const beatSamples = Math.round(beatDuration * sampleRate);
+                const startSample = goClickDetectedSample + beatSamples;
+
+                console.log(`Starting analysis at sample ${startSample} (detected GO! + one beat = ${(startSample / sampleRate * 1000).toFixed(1)}ms)`);
+
+                // Only process exactly as many slices as we expect in the reference
+                const expectedSlices = referenceTimeSeries.length;
+                console.log(`Analyzing ${expectedSlices} slices`);
+                console.log(`Recording has ${Math.floor(audioData.length / sliceSamples)} potential slices`);
+
+                // Extract pitch at each time slice
+                recordedTimeSeries = [];
+
+                // Log timing for first few and transition slices
+                const slicesToLog = [0, 1, 11, 12, 13, 23, 24, 25, 35, 36, 37];
+
+                for (let sliceIndex = 0; sliceIndex < expectedSlices; sliceIndex++) {
+                    const slicePosition = startSample + (sliceIndex * sliceSamples);
+
+                    if (slicesToLog.includes(sliceIndex)) {
+                        const timeMs = (slicePosition / sampleRate * 1000).toFixed(1);
+                        console.log(`Slice ${sliceIndex}: analyzing sample ${slicePosition} (${timeMs}ms from buffer start)`);
+                    }
+
+                    // Analyze FORWARD from this slice position
+                    // This detects "what pitch is present starting now"
+                    // rather than "what pitch is present around now"
+                    const windowStart = slicePosition;
+                    const windowEnd = Math.min(slicePosition + windowSize, audioData.length);
+                    const slice = audioData.slice(windowStart, windowEnd);
+
+                    // Detect pitch for this slice
+                    const frequency = autoCorrelate(slice, sampleRate);
+                    recordedTimeSeries.push(frequency > 0 ? frequency : null);
+                }
+
+                // Show results
+                stopRecording();
+
+            } catch (error) {
+                document.getElementById('status').textContent = 'Error analyzing: ' + error.message;
+                console.error('Analysis error:', error);
+                document.getElementById('start-btn').disabled = false;
+            }
+        }
+
+        // Show results after analysis
+        function stopRecording() {
+            // Compare and show results
+            const error = calculateError(referenceTimeSeries, recordedTimeSeries);
+            const tolerance = parseFloat(document.getElementById('tolerance-slider').value);
+            const passed = error <= tolerance;
+
+            showResults(error, tolerance, passed);
+
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('beep-test-btn').disabled = false;
+        }
+
+        // Normalize frequency to a base octave (between 200-400 Hz range)
+        function normalizeToOctave(freq) {
+            if (freq === null || freq <= 0) return null;
+
+            // Bring frequency into the 200-400 Hz range (roughly octave 3)
+            while (freq < 200) freq *= 2;
+            while (freq >= 400) freq /= 2;
+
+            return freq;
+        }
+
+        // Calculate error between reference and recorded
+        function calculateError(reference, recorded) {
+            // Make sure they're the same length
+            const minLength = Math.min(reference.length, recorded.length);
+            let totalError = 0;
+
+            for (let i = 0; i < minLength; i++) {
+                const refFreq = reference[i];
+                const recFreq = recorded[i];
+
+                if (refFreq === null && recFreq === null) {
+                    // Both silence - perfect match
+                    continue;
+                } else if (refFreq === null || recFreq === null) {
+                    // One is silence, one is not - large error
+                    totalError += 10;
+                } else {
+                    // Both have pitch - normalize to same octave before comparing
+                    const normalizedRef = normalizeToOctave(refFreq);
+                    const normalizedRec = normalizeToOctave(recFreq);
+
+                    // Calculate frequency difference in cents (musical distance)
+                    const cents = Math.abs(1200 * Math.log2(normalizedRec / normalizedRef));
+
+                    // Convert cents to error score (0 cents = 0 error, 100 cents = ~8.3 error)
+                    // This makes it more forgiving for small pitch variations
+                    const error = Math.min(cents / 12, 10); // Cap at 10 per slice
+                    totalError += error;
+                }
+            }
+
+            // Average error per slice
+            return minLength > 0 ? totalError / minLength : 100;
+        }
+
+        // Show comparison results
+        function showResults(error, tolerance, passed) {
+            document.getElementById('results').style.display = 'block';
+
+            const errorDisplay = document.getElementById('error-display');
+            errorDisplay.textContent = passed ? `✓ PASS (Error: ${error.toFixed(1)})` : `✗ FAIL (Error: ${error.toFixed(1)})`;
+            errorDisplay.className = 'error-display ' + (passed ? 'pass' : 'fail');
+
+            // Show time series
+            document.getElementById('reference-slices').innerHTML = referenceTimeSeries
+                .map((f, i) => `${i}: ${f ? f.toFixed(1) + ' Hz' : 'silence'}`)
+                .join('<br>');
+
+            document.getElementById('recorded-slices').innerHTML = recordedTimeSeries
+                .map((f, i) => `${i}: ${f ? f.toFixed(1) + ' Hz' : 'silence'}`)
+                .join('<br>');
+
+            document.getElementById('status').textContent =
+                passed ? '✓ Great job! Try again or adjust tolerance.' :
+                '✗ Try again! You can also adjust the tolerance.';
+        }
+
+        // Autocorrelation (same as pitch-test.html)
+        function autoCorrelate(buffer, sampleRate) {
+            const minFreq = 80;
+            const maxFreq = 2000;
+            const minSamples = Math.floor(sampleRate / maxFreq);
+            const maxSamples = Math.floor(sampleRate / minFreq);
+
+            let rms = 0;
+            for (let i = 0; i < buffer.length; i++) {
+                rms += buffer[i] * buffer[i];
+            }
+            rms = Math.sqrt(rms / buffer.length);
+            if (rms < 0.01) return -1;
+
+            let bestCorrelation = 0;
+            let bestOffset = -1;
+
+            for (let offset = minSamples; offset <= maxSamples; offset++) {
+                let correlation = 0;
+                for (let i = 0; i < buffer.length - offset; i++) {
+                    correlation += Math.abs(buffer[i] - buffer[i + offset]);
+                }
+                correlation = 1 - (correlation / (buffer.length - offset));
+
+                if (correlation > 0.9 && correlation > bestCorrelation) {
+                    bestCorrelation = correlation;
+                    bestOffset = offset;
+                }
+            }
+
+            if (bestOffset === -1) return -1;
+            return sampleRate / bestOffset;
+        }
+
+        // Load samples on page load
+        loadSamples();
+    </script>
+</body>
+</html>
