@@ -24,7 +24,7 @@ const InstrumentConfig = {
     // Game patterns (notes and durations for each category/level)
     // Game patterns (notes and durations for each category/level)
     patterns: {
-        "left-right": {
+        "c-g": {
             "level1": [
                 { "notes": ["G3"], "durations": [4] },
                 { "notes": ["C4"], "durations": [4] }
@@ -54,47 +54,47 @@ const InstrumentConfig = {
                 { "notes": ["C4", "C4", "C4", "G3"], "durations": [1, 1, 1, 1] }
             ]
         },
-        "see-saw": {
+        "c-d-e": {
             "level1": [
                 { "notes": ["C4", "C4"], "durations": [2, 2] },
                 { "notes": ["D4", "D4"], "durations": [2, 2] },
-                { "notes": ["G4", "G4"], "durations": [2, 2] }
+                { "notes": ["E4", "E4"], "durations": [2, 2] }
             ],
             "level2": [
                 { "notes": ["C4", "C4"], "durations": [2, 2] },
                 { "notes": ["C4", "D4"], "durations": [2, 2] },
-                { "notes": ["C4", "G4"], "durations": [2, 2] },
+                { "notes": ["C4", "E4"], "durations": [2, 2] },
                 { "notes": ["D4", "D4"], "durations": [2, 2] },
                 { "notes": ["D4", "C4"], "durations": [2, 2] },
-                { "notes": ["D4", "G4"], "durations": [2, 2] },
-                { "notes": ["G4", "G4"], "durations": [2, 2] },
-                { "notes": ["G4", "C4"], "durations": [2, 2] },
-                { "notes": ["G4", "D4"], "durations": [2, 2] }
+                { "notes": ["D4", "E4"], "durations": [2, 2] },
+                { "notes": ["E4", "E4"], "durations": [2, 2] },
+                { "notes": ["E4", "C4"], "durations": [2, 2] },
+                { "notes": ["E4", "D4"], "durations": [2, 2] }
             ],
             "level3": [
                 { "notes": ["C4", "C4", "C4"], "durations": [1, 1, 2] },
-                { "notes": ["C4", "D4", "G4"], "durations": [1, 1, 2] },
+                { "notes": ["C4", "D4", "E4"], "durations": [1, 1, 2] },
                 { "notes": ["D4", "D4", "C4"], "durations": [1, 1, 2] },
-                { "notes": ["G4", "G4", "D4"], "durations": [1, 1, 2] },
+                { "notes": ["E4", "E4", "D4"], "durations": [1, 1, 2] },
                 { "notes": ["C4", "C4", "D4"], "durations": [1, 2, 1] },
-                { "notes": ["D4", "D4", "G4"], "durations": [1, 2, 1] },
-                { "notes": ["G4", "C4", "C4"], "durations": [1, 2, 1] },
-                { "notes": ["C4", "G4", "C4"], "durations": [1, 2, 1] },
+                { "notes": ["D4", "D4", "E4"], "durations": [1, 2, 1] },
+                { "notes": ["E4", "C4", "C4"], "durations": [1, 2, 1] },
+                { "notes": ["C4", "E4", "C4"], "durations": [1, 2, 1] },
                 { "notes": ["C4", "D4", "C4"], "durations": [2, 1, 1] },
-                { "notes": ["D4", "C4", "G4"], "durations": [2, 1, 1] },
-                { "notes": ["G4", "G4", "C4"], "durations": [2, 1, 1] },
-                { "notes": ["C4", "C4", "G4"], "durations": [2, 1, 1] }
+                { "notes": ["D4", "C4", "E4"], "durations": [2, 1, 1] },
+                { "notes": ["E4", "E4", "C4"], "durations": [2, 1, 1] },
+                { "notes": ["C4", "C4", "E4"], "durations": [2, 1, 1] }
             ],
             "level4": [
-                { "notes": ["C4", "C4", "D4", "G4"], "durations": [1, 1, 1, 1] },
-                { "notes": ["C4", "D4", "C4", "G4"], "durations": [1, 1, 1, 1] },
+                { "notes": ["C4", "C4", "D4", "E4"], "durations": [1, 1, 1, 1] },
+                { "notes": ["C4", "D4", "C4", "E4"], "durations": [1, 1, 1, 1] },
                 { "notes": ["C4", "D4", "D4", "C4"], "durations": [1, 1, 1, 1] },
-                { "notes": ["C4", "G4", "D4", "C4"], "durations": [1, 1, 1, 1] },
-                { "notes": ["D4", "D4", "C4", "G4"], "durations": [1, 1, 1, 1] },
-                { "notes": ["D4", "G4", "C4", "D4"], "durations": [1, 1, 1, 1] },
-                { "notes": ["D4", "G4", "G4", "C4"], "durations": [1, 1, 1, 1] },
-                { "notes": ["G4", "C4", "D4", "C4"], "durations": [1, 1, 1, 1] },
-                { "notes": ["G4", "G4", "C4", "D4"], "durations": [1, 1, 1, 1] }
+                { "notes": ["C4", "E4", "D4", "C4"], "durations": [1, 1, 1, 1] },
+                { "notes": ["D4", "D4", "C4", "E4"], "durations": [1, 1, 1, 1] },
+                { "notes": ["D4", "E4", "C4", "D4"], "durations": [1, 1, 1, 1] },
+                { "notes": ["D4", "E4", "E4", "C4"], "durations": [1, 1, 1, 1] },
+                { "notes": ["E4", "C4", "D4", "C4"], "durations": [1, 1, 1, 1] },
+                { "notes": ["E4", "E4", "C4", "D4"], "durations": [1, 1, 1, 1] }
             ]
         },
         "twinkle": {
@@ -287,13 +287,13 @@ const InstrumentConfig = {
     },
 
     victoryPatterns: {
-        'left-right': {
+        'c-g': {
             notes: [196.00, 261.63, 196.00, 261.63, 196.00, 261.63, 196.00, 261.63],
             description: 'Alternating G3 and C4'
         },
-        'see-saw': {
+        'c-d-e': {
             notes: [293.66, 293.66, 293.66, 293.66, 293.66, 293.66, 261.63, 329.63, 392.00, 523.25],
-            description: 'Triplet eighth notes: D D D D D D C E G C',
+            description: 'Triplet eighth notes: D D D D D D C E (then octave jump) C',
             triplet: true
         },
         'twinkle': {
