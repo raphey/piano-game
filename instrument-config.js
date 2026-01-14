@@ -13,14 +13,12 @@ const InstrumentConfig = {
     // Audio sample configuration
     sampleDirectory: 'samples/',
     sampleNotes: {
-        'C3': 48,
-        'D3': 50,
-        'E3': 52,
-        'G3': 55,
-        'C4': 60,
-        'E4': 64,
-        'G4': 67,
-        'C5': 72
+        'A3': 57,   // 220 Hz
+        'C4': 60,   // 261.63 Hz (middle C)
+        'Eb4': 63,  // 311.13 Hz
+        'Gb4': 66,  // 369.99 Hz
+        'A4': 69,   // 440 Hz
+        'C5': 72    // 523.25 Hz
     },
 
     // Game patterns (notes and durations for each category/level)
