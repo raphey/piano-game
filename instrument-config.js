@@ -304,12 +304,12 @@ const InstrumentConfig = {
             description: 'Eighth notes: E5 D5 C5 D5 E5 G5 C6'
         },
         'twinkle': {
-            notes: [349.23, 349.23, 329.63, 329.63, 293.66, 392.00, 523.25],
-            description: 'Eighth notes: F F E E D G C'
+            notes: [698.46, 698.46, 659.26, 659.26, 587.32, 784.00, 1046.50],
+            description: 'Eighth notes: F5 F5 E5 E5 D5 G5 C6'
         },
         'lightly-row': {
-            notes: [261.63, 329.63, 392.00, 392.00, 329.63, 392.00, 523.25],
-            description: 'Scale degrees 1 3 5 5 3 5 8 in C major'
+            notes: [523.26, 659.26, 784.00, 784.00, 659.26, 784.00, 1046.50],
+            description: 'Scale degrees 1 3 5 5 3 5 8 in C major: C5 E5 G5 G5 E5 G5 C6'
         },
         'default': {
             notes: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77,
