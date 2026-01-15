@@ -150,6 +150,9 @@ const Game = {
 
         // Play coin sound
         if (typeof Sounds !== 'undefined') {
+            console.log('DEBUG: About to play correct sound');
+            console.log('DEBUG: Audio context state:', Sounds.audioContext?.state);
+            console.log('DEBUG: Audio context time:', Sounds.audioContext?.currentTime);
             Sounds.playCorrect();
         }
 
