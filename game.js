@@ -148,12 +148,14 @@ const Game = {
 
         UI.showStatus('Correct!');
 
-        // Play coin sound
+        // Play coin sound (with small delay to let recording cleanup finish)
         if (typeof Sounds !== 'undefined') {
             console.log('DEBUG: About to play correct sound');
             console.log('DEBUG: Audio context state:', Sounds.audioContext?.state);
             console.log('DEBUG: Audio context time:', Sounds.audioContext?.currentTime);
-            Sounds.playCorrect();
+            setTimeout(() => {
+                Sounds.playCorrect();
+            }, 100);
         }
 
         // Auto-advance after 1300ms
