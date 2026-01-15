@@ -86,7 +86,7 @@ const Sounds = {
             noteDuration = noteDelay * 0.8; // Slightly shorter for articulation
             oscillatorType = 'triangle';
         } else if (category === 'c-d-e') {
-            noteDelay = beatDuration / 2; // Eighth notes (2 per beat)
+            noteDelay = beatDuration * 0.3; // 40% faster than eighth notes
             noteDuration = noteDelay * 0.8; // Slightly shorter for articulation
             oscillatorType = 'triangle';
         } else if (victoryPattern.triplet) {
@@ -94,11 +94,11 @@ const Sounds = {
             noteDuration = noteDelay * 0.95; // More legato
             oscillatorType = 'triangle';
         } else if (category === 'twinkle') {
-            noteDelay = beatDuration / 2; // Eighth notes (2 per beat)
+            noteDelay = beatDuration * 0.3; // 40% faster than eighth notes
             noteDuration = noteDelay * 0.8; // Slightly shorter for articulation
             oscillatorType = 'triangle';
         } else if (category === 'lightly-row') {
-            noteDelay = beatDuration / 2; // Eighth notes (2 per beat)
+            noteDelay = beatDuration * 0.3; // 40% faster than eighth notes
             noteDuration = noteDelay * 0.85; // Smooth and flowing
             oscillatorType = 'triangle';
         } else {
