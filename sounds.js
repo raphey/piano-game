@@ -38,7 +38,7 @@ const Sounds = {
     playCorrect: function() {
         this.init();
 
-        const notes = [783.99, 1046.50]; // G5, C6 (perfect fourth in C major)
+        const notes = [1567.98, 2093.00]; // G6, C7 (perfect fourth in C major)
         const durations = [0.08, 0.2]; // Second note has longer decay
 
         notes.forEach((freq, i) => {
