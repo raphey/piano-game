@@ -300,9 +300,8 @@ const InstrumentConfig = {
             description: 'C major 7 arpeggio over 3 octaves: C E G B repeating from C4 to C7'
         },
         'c-d-e': {
-            notes: [293.66, 293.66, 293.66, 293.66, 293.66, 293.66, 261.63, 329.63, 392.00, 523.25],
-            description: 'Triplet eighth notes: D D D D D D C E (then octave jump) C',
-            triplet: true
+            notes: [659.25, 587.33, 523.25, 587.33, 659.25, 783.99, 1046.50],
+            description: 'Eighth notes: E5 D5 C5 D5 E5 G5 C6'
         },
         'twinkle': {
             notes: [349.23, 349.23, 329.63, 329.63, 293.66, 392.00, 523.25],

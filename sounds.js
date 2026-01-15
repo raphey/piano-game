@@ -84,7 +84,11 @@ const Sounds = {
             noteDelay = beatDuration / 4; // Sixteenth notes
             noteDuration = noteDelay * 0.8; // Slightly shorter for articulation
             oscillatorType = 'triangle';
-        } else if (category === 'c-d-e' || victoryPattern.triplet) {
+        } else if (category === 'c-d-e') {
+            noteDelay = beatDuration / 2; // Eighth notes (2 per beat)
+            noteDuration = noteDelay * 0.8; // Slightly shorter for articulation
+            oscillatorType = 'triangle';
+        } else if (victoryPattern.triplet) {
             noteDelay = beatDuration / 3; // Triplet eighth notes (3 per beat)
             noteDuration = noteDelay * 0.95; // More legato
             oscillatorType = 'triangle';
