@@ -77,8 +77,8 @@ const Sounds = {
 
         // Determine timing based on category/pattern
         if (category === 'g-c') {
-            noteDelay = 0.12; // Fast ascending major 7ths
-            noteDuration = 0.25; // Longer sustain for dramatic effect
+            noteDelay = 0.08; // Fast C major 7 arpeggio
+            noteDuration = 0.2; // Smooth flowing notes
             oscillatorType = 'triangle';
         } else if (category === 'open-strings') {
             noteDelay = beatDuration / 4; // Sixteenth notes
