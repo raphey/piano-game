@@ -51,7 +51,8 @@ const Sounds = {
             oscillator.frequency.value = freq;
             oscillator.type = 'square';
 
-            const startTime = this.audioContext.currentTime + (i * 0.08);
+            // Add small buffer (0.02s) to ensure audio context is ready, especially on Firefox
+            const startTime = this.audioContext.currentTime + 0.02 + (i * 0.08);
             const duration = durations[i];
 
             gainNode.gain.setValueAtTime(0.2, startTime);
