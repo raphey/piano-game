@@ -76,11 +76,15 @@ const Sounds = {
         notes = victoryPattern.notes;
 
         // Determine timing based on category/pattern
-        if (category === 'open-strings') {
+        if (category === 'g-c') {
+            noteDelay = 0.12; // Fast ascending major 7ths
+            noteDuration = 0.25; // Longer sustain for dramatic effect
+            oscillatorType = 'triangle';
+        } else if (category === 'open-strings') {
             noteDelay = beatDuration / 4; // Sixteenth notes
             noteDuration = noteDelay * 0.8; // Slightly shorter for articulation
             oscillatorType = 'triangle';
-        } else if (category === 'see-saw' || victoryPattern.triplet) {
+        } else if (category === 'c-d-e' || victoryPattern.triplet) {
             noteDelay = beatDuration / 3; // Triplet eighth notes (3 per beat)
             noteDuration = noteDelay * 0.95; // More legato
             oscillatorType = 'triangle';

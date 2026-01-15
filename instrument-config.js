@@ -296,8 +296,8 @@ const InstrumentConfig = {
 
     victoryPatterns: {
         'g-c': {
-            notes: [196.00, 261.63, 196.00, 261.63, 196.00, 261.63, 196.00, 261.63],
-            description: 'Alternating G3 and C4'
+            notes: [196.00, 369.99, 698.46, 1318.51],
+            description: 'Major 7ths ascending: G3, F#4, F5, E6'
         },
         'c-d-e': {
             notes: [293.66, 293.66, 293.66, 293.66, 293.66, 293.66, 261.63, 329.63, 392.00, 523.25],
