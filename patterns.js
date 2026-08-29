@@ -114,14 +114,14 @@ const Patterns = {
             beats = this.fillBeatsFromPool('L', pool);
 
         } else if (level === 7) {
-            // Mixed: one RH finger + one LH finger, alternating
+            // Mixed: one RH finger + one LH finger, any arrangement (at least one of each)
             const rf = fingers[Math.floor(Math.random() * 5)];
             const lf = fingers[Math.floor(Math.random() * 5)];
-            const startR = Math.random() < 0.5;
-            beats = [0, 1, 2, 3].map(i => {
-                const isR = startR ? (i % 2 === 0) : (i % 2 === 1);
-                return isR ? { hand: 'R', finger: rf } : { hand: 'L', finger: lf };
-            });
+            // Guarantee at least one R and one L, then fill remaining 2 randomly
+            const hands = ['R', 'L'];
+            for (let i = 0; i < 2; i++) hands.push(Math.random() < 0.5 ? 'R' : 'L');
+            this.shuffle(hands);
+            beats = hands.map(h => h === 'R' ? { hand: 'R', finger: rf } : { hand: 'L', finger: lf });
 
         } else {
             // Level 8: each beat independently random hand + finger
