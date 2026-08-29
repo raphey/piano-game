@@ -80,9 +80,11 @@ const Game = {
             UI.showRecordingIndicator(false);
             await Recording.startRecording();
 
-            // Step 2: Play reference pattern
-            UI.showStatus('Listen...');
-            await Audio.playPattern(this.currentPattern);
+            // Step 2: Play reference pattern (skipped for finger-numbers)
+            if (this.category !== 'finger-numbers') {
+                UI.showStatus('Listen...');
+                await Audio.playPattern(this.currentPattern);
+            }
 
             // Step 3: Play countdown (4 quiet + 4 loud clicks)
             const goClickTime = await Audio.playCountdown();

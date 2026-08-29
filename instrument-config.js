@@ -278,12 +278,6 @@ const InstrumentConfig = {
                 { "notes": ["G4", "F4", "G4", "F4"], "durations": [1, 1, 1, 1] }
             ]
         },
-        "wind": {
-            "level1": [],
-            "level2": [],
-            "level3": [],
-            "level4": []
-        }
     },
 
     // Instructions for each category (displayed during gameplay)
@@ -291,7 +285,8 @@ const InstrumentConfig = {
         'g-c': "Put your left index finger on G below middle C and your right index finger on middle C",
         'c-d-e': "Put your thumb on middle C. This game uses C, D, and E.",
         'twinkle': "This game uses C, D, E, F, G, and A.",
-        'lightly-row': "This game uses C, D, E, F, and G."
+        'lightly-row': "This game uses C, D, E, F, and G.",
+        'finger-numbers': "Position your right thumb on middle C, left thumb on G below middle C, one finger per white note. Play four quarter notes."
     },
 
     victoryPatterns: {
@@ -310,6 +305,11 @@ const InstrumentConfig = {
         'lightly-row': {
             notes: [523.26, 659.26, 784.00, 784.00, 659.26, 784.00, 1046.50],
             description: 'Scale degrees 1 3 5 5 3 5 8 in C major: C5 E5 G5 G5 E5 G5 C6'
+        },
+        'finger-numbers': {
+            notes: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77,
+                    1046.50, 1318.51, 1567.98, 1975.53, 1046.50, 1318.51, 1567.98, 1975.53],
+            description: 'C major 7th arpeggio with repeat'
         },
         'default': {
             notes: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77,

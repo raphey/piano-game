@@ -178,8 +178,12 @@ const UI = {
         const patternDisplay = document.getElementById('pattern-display');
         const patternNotes = document.getElementById('pattern-notes');
 
-        // Only show notes if setting is enabled
-        if (Settings.get('showNotes')) {
+        if (pattern.beats) {
+            // Finger-numbers mode: show the hand/finger grid
+            patternDisplay.style.display = 'block';
+            patternNotes.innerHTML = '';
+            patternNotes.appendChild(this.buildFingerGrid(pattern.beats));
+        } else if (Settings.get('showNotes')) {
             patternDisplay.style.display = 'block';
             const notesText = pattern.notes.map((note, i) => {
                 const beats = pattern.durations[i];
@@ -190,6 +194,37 @@ const UI = {
             patternDisplay.style.display = 'none';
             patternNotes.textContent = '';
         }
+    },
+
+    // Build the finger grid table element for finger-numbers display
+    buildFingerGrid: function(beats) {
+        const table = document.createElement('table');
+        table.className = 'finger-grid';
+
+        ['R', 'L'].forEach(hand => {
+            const tr = document.createElement('tr');
+
+            const th = document.createElement('th');
+            th.className = 'finger-grid-header';
+            th.textContent = hand === 'R' ? 'Right' : 'Left';
+            tr.appendChild(th);
+
+            beats.forEach(beat => {
+                const td = document.createElement('td');
+                if (beat.hand === hand) {
+                    td.className = 'finger-grid-cell filled';
+                    td.textContent = beat.finger;
+                } else {
+                    td.className = 'finger-grid-cell empty';
+                    td.textContent = '';
+                }
+                tr.appendChild(td);
+            });
+
+            table.appendChild(tr);
+        });
+
+        return table;
     },
 
     // Clear the pattern display
@@ -393,7 +428,27 @@ const UI = {
         const levelButtonsContainer = document.getElementById('level-buttons-container');
         levelButtonsContainer.innerHTML = ''; // Clear existing buttons
 
-        if (typeof Patterns !== 'undefined' && Patterns.allPatterns) {
+        // Finger-numbers levels are generated dynamically (8 fixed levels)
+        if (this.selectedCategory === 'finger-numbers') {
+            [1, 2, 3, 4, 5, 6, 7, 8].forEach(level => {
+                const btn = document.createElement('button');
+                btn.className = 'menu-btn';
+                btn.setAttribute('data-level', level);
+                let completionIcon = '';
+                if (typeof CompletionTracker !== 'undefined') {
+                    const status = CompletionTracker.getCompletion(this.selectedCategory, level);
+                    if (status === CompletionTracker.PERFECT) completionIcon = '⭐';
+                    else if (status === CompletionTracker.ADEQUATE) completionIcon = '✓';
+                }
+                btn.textContent = `${completionIcon}${completionIcon ? ' ' : ''}Level ${level}`;
+                btn.addEventListener('click', () => {
+                    this.selectedLevel = level;
+                    if (typeof Sounds !== 'undefined') Sounds.playClick();
+                    this.startGame();
+                });
+                levelButtonsContainer.appendChild(btn);
+            });
+        } else if (typeof Patterns !== 'undefined' && Patterns.allPatterns) {
             const categoryPatterns = Patterns.allPatterns[this.selectedCategory];
 
             if (categoryPatterns) {
