@@ -8,7 +8,7 @@ const Game = {
     referenceTimeSeries: null,
     category: null,
     level: null,
-    tolerance: 7.0,
+    tolerance: 4.2,
 
     isPlaying: false,
 
@@ -194,6 +194,19 @@ const Game = {
             celebrationLevel = 'okay';
         } else {
             celebrationLevel = 'keep_trying';
+        }
+
+        // Save completion status (if CompletionTracker is available)
+        if (typeof CompletionTracker !== 'undefined') {
+            const completionStatus = CompletionTracker.getStatusFromScore(
+                this.correctCount,
+                this.totalQuestions
+            );
+            CompletionTracker.setCompletion(
+                this.category,
+                this.level,
+                completionStatus
+            );
         }
 
         // Show celebration screen
