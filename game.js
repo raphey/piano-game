@@ -45,6 +45,8 @@ const Game = {
 
     // Play next question in sequence
     nextQuestion: async function() {
+        if (!this.isPlaying) return;
+
         this.currentQuestionNum++;
 
         if (this.currentQuestionNum > this.totalQuestions) {
@@ -74,6 +76,8 @@ const Game = {
 
     // Main game flow for one problem
     playAndRecord: async function() {
+        if (!this.isPlaying) return;
+
         try {
             // Step 1: Start recording (before reference, to avoid startup delay)
             UI.showStatus('Starting...');
@@ -81,7 +85,10 @@ const Game = {
             await Recording.startRecording();
 
             // Step 2: Play reference pattern (skipped for finger-numbers)
-            if (this.category !== 'finger-numbers') {
+            if (
+                this.category !== 'finger-numbers'
+                && this.category !== 'note-reading'
+            ) {
                 UI.showStatus('Listen...');
                 await Audio.playPattern(this.currentPattern);
             }

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Staff Renderer Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont,
+                'Segoe UI', Roboto, sans-serif;
+            background: #f0f0f0;
+            color: #222;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        h2 {
+            margin-top: 32px;
+            margin-bottom: 12px;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .staff-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            text-align: center;
+            overflow-x: auto;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .staff-container .label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 24px 0;
+        }
+
+        .controls button {
+            background: #4a6fa5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .controls button:hover {
+            background: #5a7fb5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Staff Renderer Test</h1>
+
+    <div class="controls">
+        <button onclick="renderAll()">
+            Render All Examples
+        </button>
+        <button onclick="renderRandom()">
+            Random Pattern
+        </button>
+    </div>
+
+    <div id="examples"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.3/build/cjs/vexflow.js"></script>
+    <script src="staff-renderer.js"></script>
+    <script>
+        function renderAll() {
+            const container = document.getElementById(
+                'examples'
+            );
+            container.innerHTML = '';
+
+            // Treble clef examples
+            addSection(container, 'Treble Clef Only');
+
+            addExample(
+                container,
+                'Level 1: C4, D4',
+                { notes: ['C4', 'D4', 'C4', 'D4'],
+                  durations: [1, 1, 1, 1] },
+                'treble'
+            );
+
+            addExample(
+                container,
+                'Level 2: C4, D4, E4',
+                { notes: ['C4', 'D4', 'E4', 'D4'],
+                  durations: [1, 1, 1, 1] },
+                'treble'
+            );
+
+            addExample(
+                container,
+                'Treble: E4, F4, G4',
+                { notes: ['E4', 'F4', 'G4', 'E4'],
+                  durations: [1, 1, 1, 1] },
+                'treble'
+            );
+
+            // Bass clef examples
+            addSection(container, 'Bass Clef Only');
+
+            addExample(
+                container,
+                'Level 3: B3, C4',
+                { notes: ['B3', 'C4', 'B3', 'C4'],
+                  durations: [1, 1, 1, 1] },
+                'bass'
+            );
+
+            addExample(
+                container,
+                'Level 4: A3, B3, C4',
+                { notes: ['A3', 'B3', 'C4', 'A3'],
+                  durations: [1, 1, 1, 1] },
+                'bass'
+            );
+
+            addExample(
+                container,
+                'Bass: F3, G3, A3',
+                { notes: ['F3', 'G3', 'A3', 'F3'],
+                  durations: [1, 1, 1, 1] },
+                'bass'
+            );
+
+            // Grand staff examples
+            addSection(container, 'Grand Staff');
+
+            addExample(
+                container,
+                'Level 5: B3, C4, D4',
+                { notes: ['B3', 'C4', 'D4', 'C4'],
+                  durations: [1, 1, 1, 1] },
+                'grand'
+            );
+
+            addExample(
+                container,
+                'Level 6: A3, B3, C4, D4, E4',
+                { notes: ['A3', 'C4', 'E4', 'B3'],
+                  durations: [1, 1, 1, 1] },
+                'grand'
+            );
+
+            addExample(
+                container,
+                'Level 8: Full range F3-G4',
+                { notes: ['F3', 'C4', 'G4', 'A3'],
+                  durations: [1, 1, 1, 1] },
+                'grand'
+            );
+
+            addExample(
+                container,
+                'Grand: All bass ascending',
+                { notes: ['F3', 'G3', 'A3', 'B3'],
+                  durations: [1, 1, 1, 1] },
+                'grand'
+            );
+
+            addExample(
+                container,
+                'Grand: C4 area',
+                { notes: ['B3', 'C4', 'D4', 'E4'],
+                  durations: [1, 1, 1, 1] },
+                'grand'
+            );
+        }
+
+        function addSection(container, title) {
+            const h2 = document.createElement('h2');
+            h2.textContent = title;
+            container.appendChild(h2);
+        }
+
+        function addExample(
+            container, label, pattern, mode
+        ) {
+            const div = document.createElement('div');
+            div.className = 'staff-container';
+
+            const labelEl = document.createElement('div');
+            labelEl.className = 'label';
+            labelEl.textContent = label;
+            div.appendChild(labelEl);
+
+            const renderTarget = document.createElement(
+                'div'
+            );
+            div.appendChild(renderTarget);
+            container.appendChild(div);
+
+            StaffRenderer.render(
+                pattern, mode, renderTarget
+            );
+        }
+
+        function renderRandom() {
+            const allNotes = [
+                'F3', 'G3', 'A3', 'B3',
+                'C4', 'D4', 'E4', 'F4', 'G4'
+            ];
+            const notes = [];
+            for (let i = 0; i < 4; i++) {
+                const idx = Math.floor(
+                    Math.random() * allNotes.length
+                );
+                notes.push(allNotes[idx]);
+            }
+
+            const container = document.getElementById(
+                'examples'
+            );
+            container.innerHTML = '';
+
+            addSection(container, 'Random Pattern');
+            addExample(
+                container,
+                `Notes: ${notes.join(', ')}`,
+                { notes, durations: [1, 1, 1, 1] },
+                'grand'
+            );
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>

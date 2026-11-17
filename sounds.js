@@ -24,14 +24,14 @@ const Sounds = {
         oscillator.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
 
-        oscillator.frequency.value = 659.25; // E5
+        oscillator.frequency.value = 440; // A4
         oscillator.type = 'sine';
 
-        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.06, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.06);
 
         oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.1);
+        oscillator.stop(this.audioContext.currentTime + 0.06);
     },
 
     // Play a correct answer sound (Mario coin-style)

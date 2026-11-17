@@ -178,7 +178,14 @@ const UI = {
         const patternDisplay = document.getElementById('pattern-display');
         const patternNotes = document.getElementById('pattern-notes');
 
-        if (pattern.beats) {
+        if (pattern.staffMode) {
+            // Note-reading mode: render staff with VexFlow
+            patternDisplay.style.display = 'block';
+            patternNotes.innerHTML = '';
+            StaffRenderer.render(
+                pattern, pattern.staffMode, patternNotes
+            );
+        } else if (pattern.beats) {
             // Finger-numbers mode: show the hand/finger grid
             patternDisplay.style.display = 'block';
             patternNotes.innerHTML = '';
@@ -428,8 +435,11 @@ const UI = {
         const levelButtonsContainer = document.getElementById('level-buttons-container');
         levelButtonsContainer.innerHTML = ''; // Clear existing buttons
 
-        // Finger-numbers levels are generated dynamically (8 fixed levels)
-        if (this.selectedCategory === 'finger-numbers') {
+        // Categories with fixed dynamic levels
+        if (
+            this.selectedCategory === 'finger-numbers'
+            || this.selectedCategory === 'note-reading'
+        ) {
             [1, 2, 3, 4, 5, 6, 7, 8].forEach(level => {
                 const btn = document.createElement('button');
                 btn.className = 'menu-btn';

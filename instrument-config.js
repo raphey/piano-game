@@ -286,7 +286,8 @@ const InstrumentConfig = {
         'c-d-e': "Put your thumb on middle C. This game uses C, D, and E.",
         'twinkle': "This game uses C, D, E, F, G, and A.",
         'lightly-row': "This game uses C, D, E, F, and G.",
-        'finger-numbers': "Position your right thumb on middle C, left thumb on G below middle C, one finger per white note. Play four quarter notes."
+        'finger-numbers': "Position your right thumb on middle C, left thumb on G below middle C, one finger per white note. Play four quarter notes.",
+        'note-reading': "Play the four notes shown on the staff."
     },
 
     victoryPatterns: {
@@ -310,6 +311,11 @@ const InstrumentConfig = {
             notes: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77,
                     1046.50, 1318.51, 1567.98, 1975.53, 1046.50, 1318.51, 1567.98, 1975.53],
             description: 'C major 7th arpeggio with repeat'
+        },
+        'note-reading': {
+            notes: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77,
+                    1046.50, 1318.51, 1567.98, 1975.53, 2093.00],
+            description: 'C major 7 arpeggio over 3 octaves'
         },
         'default': {
             notes: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77,

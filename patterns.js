@@ -16,6 +16,9 @@ const Patterns = {
         if (category === 'finger-numbers') {
             return this.generateFingerNumbers(level);
         }
+        if (category === 'note-reading') {
+            return this.generateNoteReading(level);
+        }
 
         if (!this.allPatterns) {
             console.error('Patterns not loaded yet');
@@ -134,6 +137,70 @@ const Patterns = {
         const notes = beats.map(b => this.fingerToNote(b.hand, b.finger));
         const pattern = { notes, durations: [1, 1, 1, 1], beats };
         console.log(`Generated finger-numbers level ${level}:`, pattern);
+        return pattern;
+    },
+
+    // Note pools and staff modes per level
+    noteReadingLevels: {
+        1: { mode: 'treble', pool: ['C4', 'D4'] },
+        2: { mode: 'treble', pool: ['C4', 'D4', 'E4'] },
+        3: { mode: 'bass', pool: ['B3', 'C4'] },
+        4: { mode: 'bass', pool: ['A3', 'B3', 'C4'] },
+        5: {
+            mode: 'grand',
+            pool: ['B3', 'C4', 'D4']
+        },
+        6: {
+            mode: 'grand',
+            pool: ['A3', 'B3', 'C4', 'D4', 'E4']
+        },
+        7: {
+            mode: 'grand',
+            pool: [
+                'G3', 'A3', 'B3', 'C4',
+                'D4', 'E4', 'F4'
+            ]
+        },
+        8: {
+            mode: 'grand',
+            pool: [
+                'F3', 'G3', 'A3', 'B3',
+                'C4', 'D4', 'E4', 'F4', 'G4'
+            ]
+        }
+    },
+
+    generateNoteReading: function(level) {
+        const config = this.noteReadingLevels[level];
+        if (!config) {
+            console.error(
+                `No note-reading config for level ${level}`
+            );
+            return {
+                notes: ['C4', 'C4', 'C4', 'C4'],
+                durations: [1, 1, 1, 1],
+                staffMode: 'treble'
+            };
+        }
+
+        const pool = config.pool;
+        const notes = [];
+        for (let i = 0; i < 4; i++) {
+            const idx = Math.floor(
+                Math.random() * pool.length
+            );
+            notes.push(pool[idx]);
+        }
+
+        const pattern = {
+            notes: notes,
+            durations: [1, 1, 1, 1],
+            staffMode: config.mode
+        };
+        console.log(
+            `Generated note-reading level ${level}:`,
+            pattern
+        );
         return pattern;
     }
 };
