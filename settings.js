@@ -3,10 +3,11 @@
 const Settings = {
     // Default values
     defaults: {
-        tempo: 80,                                    // BPM (60-120)
-        tolerance: InstrumentConfig.defaultTolerance, // Error threshold (2-10)
-        levelLength: 5,                               // Questions per level (5-15)
-        showNotes: false                              // Show note names (true/false)
+        tempo: 80,
+        tolerance: InstrumentConfig.defaultTolerance,
+        levelLength: 5,
+        showNotes: false,
+        readyBeforePlay: true
     },
 
     // Current values (loaded from localStorage or defaults)
@@ -14,13 +15,29 @@ const Settings = {
 
     // Initialize settings from localStorage or defaults
     init: function() {
-        const storedShowNotes = localStorage.getItem('piano-game-showNotes');
+        const storedShowNotes = localStorage.getItem(
+            'piano-game-showNotes'
+        );
+        const storedReady = localStorage.getItem(
+            'piano-game-readyBeforePlay'
+        );
 
         this.current = {
-            tempo: parseInt(localStorage.getItem('piano-game-tempo')) || this.defaults.tempo,
-            tolerance: parseFloat(localStorage.getItem('piano-game-tolerance')) || this.defaults.tolerance,
-            levelLength: parseInt(localStorage.getItem('piano-game-levelLength')) || this.defaults.levelLength,
-            showNotes: storedShowNotes !== null ? storedShowNotes === 'true' : this.defaults.showNotes
+            tempo: parseInt(
+                localStorage.getItem('piano-game-tempo')
+            ) || this.defaults.tempo,
+            tolerance: parseFloat(
+                localStorage.getItem('piano-game-tolerance')
+            ) || this.defaults.tolerance,
+            levelLength: parseInt(
+                localStorage.getItem('piano-game-levelLength')
+            ) || this.defaults.levelLength,
+            showNotes: storedShowNotes !== null
+                ? storedShowNotes === 'true'
+                : this.defaults.showNotes,
+            readyBeforePlay: storedReady !== null
+                ? storedReady === 'true'
+                : this.defaults.readyBeforePlay
         };
 
         // Validate ranges
@@ -65,6 +82,7 @@ const Settings = {
         localStorage.removeItem('piano-game-tolerance');
         localStorage.removeItem('piano-game-levelLength');
         localStorage.removeItem('piano-game-showNotes');
+        localStorage.removeItem('piano-game-readyBeforePlay');
         this.apply();
         console.log('Settings reset to defaults');
     }

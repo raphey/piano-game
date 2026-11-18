@@ -111,8 +111,14 @@ const UI = {
             }
 
             // Stop recording if in progress
-            if (typeof Recording !== 'undefined' && Recording.audioRecorder && Recording.audioRecorder.state === 'recording') {
-                console.log('Stopping recording due to home button click');
+            if (
+                typeof Recording !== 'undefined'
+                && Recording.audioRecorder
+                && Recording.audioRecorder.state === 'recording'
+            ) {
+                console.log(
+                    'Stopping recording due to home button click'
+                );
                 Recording.audioRecorder.stop();
             }
 
@@ -121,6 +127,7 @@ const UI = {
                 Game.isPlaying = false;
             }
 
+            this.hideReadyButton();
             this.showCategoryScreen();
         });
 
@@ -152,25 +159,70 @@ const UI = {
         });
 
         // Show notes checkbox
-        const showNotesCheckbox = document.getElementById('show-notes-checkbox');
+        const showNotesCheckbox = document.getElementById(
+            'show-notes-checkbox'
+        );
         showNotesCheckbox.addEventListener('change', (e) => {
-            const value = e.target.checked;
-            Settings.set('showNotes', value);
+            Settings.set('showNotes', e.target.checked);
+        });
+
+        // Ready before play checkbox
+        const readyCheckbox = document.getElementById(
+            'ready-checkbox'
+        );
+        readyCheckbox.addEventListener('change', (e) => {
+            Settings.set(
+                'readyBeforePlay', e.target.checked
+            );
         });
     },
 
     // Update settings UI to reflect current values
     updateSettingsUI: function() {
-        document.getElementById('tempo-slider').value = Settings.get('tempo');
-        document.getElementById('tempo-value').textContent = Settings.get('tempo');
+        document.getElementById('tempo-slider').value =
+            Settings.get('tempo');
+        document.getElementById('tempo-value').textContent =
+            Settings.get('tempo');
 
-        document.getElementById('tolerance-slider').value = Settings.get('tolerance');
-        document.getElementById('tolerance-value').textContent = Settings.get('tolerance');
+        document.getElementById('tolerance-slider').value =
+            Settings.get('tolerance');
+        document.getElementById('tolerance-value').textContent =
+            Settings.get('tolerance');
 
-        document.getElementById('length-slider').value = Settings.get('levelLength');
-        document.getElementById('length-value').textContent = Settings.get('levelLength');
+        document.getElementById('length-slider').value =
+            Settings.get('levelLength');
+        document.getElementById('length-value').textContent =
+            Settings.get('levelLength');
 
-        document.getElementById('show-notes-checkbox').checked = Settings.get('showNotes');
+        document.getElementById('show-notes-checkbox').checked =
+            Settings.get('showNotes');
+        document.getElementById('ready-checkbox').checked =
+            Settings.get('readyBeforePlay');
+    },
+
+    // Show Ready button and return a promise that resolves on click
+    waitForReady: function() {
+        return new Promise((resolve) => {
+            const readyBtn = document.getElementById('ready-btn');
+            readyBtn.classList.remove('hidden');
+            readyBtn.disabled = false;
+
+            const handler = () => {
+                readyBtn.removeEventListener('click', handler);
+                readyBtn.classList.add('hidden');
+                if (typeof Sounds !== 'undefined') {
+                    Sounds.playClick();
+                }
+                resolve();
+            };
+            readyBtn.addEventListener('click', handler);
+        });
+    },
+
+    // Hide the Ready button (e.g. when going home mid-question)
+    hideReadyButton: function() {
+        const readyBtn = document.getElementById('ready-btn');
+        readyBtn.classList.add('hidden');
     },
 
     // Update the pattern display

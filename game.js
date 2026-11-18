@@ -74,17 +74,33 @@ const Game = {
         await this.playAndRecord();
     },
 
+    // Whether this category uses the Ready button
+    usesReadyButton: function() {
+        return (
+            this.category === 'finger-numbers'
+            || this.category === 'note-reading'
+        ) && Settings.get('readyBeforePlay');
+    },
+
     // Main game flow for one problem
     playAndRecord: async function() {
         if (!this.isPlaying) return;
 
         try {
-            // Step 1: Start recording (before reference, to avoid startup delay)
+            // Wait for Ready if enabled for this category
+            if (this.usesReadyButton()) {
+                UI.showStatus('Study the pattern...');
+                await UI.waitForReady();
+                if (!this.isPlaying) return;
+            }
+
+            // Step 1: Start recording
             UI.showStatus('Starting...');
             UI.showRecordingIndicator(false);
             await Recording.startRecording();
 
-            // Step 2: Play reference pattern (skipped for finger-numbers)
+            // Step 2: Play reference pattern (skipped for
+            // finger-numbers and note-reading)
             if (
                 this.category !== 'finger-numbers'
                 && this.category !== 'note-reading'

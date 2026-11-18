@@ -300,49 +300,56 @@ const Matching = {
     calculateErrorForAlignment: function(reference, recorded, pattern) {
         const minLength = Math.min(reference.length, recorded.length);
         let totalError = 0;
+        let scoredCount = 0;
         const sliceErrors = [];
+        const sliceScored = [];
         const attackMap = this.buildSliceAttackMap(pattern);
 
         for (let i = 0; i < minLength; i++) {
             const refFreq = reference[i];
             const recFreq = recorded[i];
             let sliceError = 0;
+            let scored = true;
 
             if (refFreq === null && recFreq === null) {
                 sliceError = 0;
             } else if (refFreq === null || recFreq === null) {
-                // Forgive silence on sustain slices (sound decay)
                 const isSustain = attackMap
                     && i < attackMap.length
                     && !attackMap[i];
                 if (recFreq === null && isSustain) {
-                    sliceError = 0;
+                    scored = false;
                 } else {
                     sliceError = 10;
                     totalError += 10;
                 }
             } else {
-                // Check for 3x subharmonic issue before octave shifting
                 let correctedRecFreq = recFreq;
                 const ratio = refFreq / recFreq;
 
-                // If ratio is close to 3, apply 3x correction (subharmonic detection error)
                 if (ratio >= 2.85 && ratio <= 3.15) {
                     correctedRecFreq = recFreq * 3;
                 }
 
-                // Now do octave normalization on the corrected frequency
-                const octaveShift = Math.round(Math.log2(refFreq / correctedRecFreq));
-                const recFreqShifted = correctedRecFreq * Math.pow(2, octaveShift);
-                const cents = Math.abs(1200 * Math.log2(recFreqShifted / refFreq));
+                const octaveShift = Math.round(
+                    Math.log2(refFreq / correctedRecFreq)
+                );
+                const recFreqShifted = correctedRecFreq
+                    * Math.pow(2, octaveShift);
+                const cents = Math.abs(
+                    1200 * Math.log2(recFreqShifted / refFreq)
+                );
                 sliceError = Math.min(cents / 12, 10);
                 totalError += sliceError;
             }
 
+            if (scored) scoredCount++;
             sliceErrors.push(sliceError);
+            sliceScored.push(scored);
         }
 
-        const avgError = minLength > 0 ? totalError / minLength : 100;
+        const avgError = scoredCount > 0
+            ? totalError / scoredCount : 100;
 
         // Calculate per-note errors by grouping slices
         let maxNoteError = 0;
@@ -353,25 +360,32 @@ const Matching = {
             pattern.notes.forEach((note, noteIndex) => {
                 const duration = pattern.durations[noteIndex];
                 const numSlices = Math.round(
-                    (duration * this.beatDuration) / this.sliceInterval
+                    (duration * this.beatDuration)
+                    / this.sliceInterval
                 );
 
                 let noteError = 0;
                 let slicesProcessed = 0;
 
-                for (let i = 0; i < numSlices && sliceIndex < minLength; i++, sliceIndex++) {
-                    noteError += sliceErrors[sliceIndex];
-                    slicesProcessed++;
+                for (
+                    let i = 0;
+                    i < numSlices && sliceIndex < minLength;
+                    i++, sliceIndex++
+                ) {
+                    if (sliceScored[sliceIndex]) {
+                        noteError += sliceErrors[sliceIndex];
+                        slicesProcessed++;
+                    }
                 }
 
-                const noteAvgError = slicesProcessed > 0 ? noteError / slicesProcessed : 0;
+                const noteAvgError = slicesProcessed > 0
+                    ? noteError / slicesProcessed : 0;
 
                 if (noteAvgError > maxNoteError) {
                     maxNoteError = noteAvgError;
                 }
             });
         } else {
-            // Fallback if pattern not provided
             maxNoteError = avgError;
         }
 
@@ -380,17 +394,17 @@ const Matching = {
 
     // Calculate error between reference and recorded (with debug output)
     calculateError: function(reference, recorded, pattern) {
-        // Make sure they're the same length
         const minLength = Math.min(reference.length, recorded.length);
         let totalError = 0;
+        let scoredCount = 0;
 
-        // Debug: Prepare slice-by-slice data
         const sliceData = [];
+        const sliceScored = [];
 
-        // Get debug info from timing data if available
-        const debugInfo = (typeof Debug !== 'undefined' && Debug.currentData.timing)
-            ? Debug.currentData.timing.debugInfo
-            : null;
+        const debugInfo = (
+            typeof Debug !== 'undefined'
+            && Debug.currentData.timing
+        ) ? Debug.currentData.timing.debugInfo : null;
 
         const attackMap = this.buildSliceAttackMap(pattern);
 
@@ -398,55 +412,52 @@ const Matching = {
             const refFreq = reference[i];
             const recFreq = recorded[i];
             let sliceError = 0;
+            let scored = true;
 
             if (refFreq === null && recFreq === null) {
-                // Both silence - perfect match
                 sliceError = 0;
             } else if (refFreq === null || recFreq === null) {
-                // Forgive silence on sustain slices (sound decay)
                 const isSustain = attackMap
                     && i < attackMap.length
                     && !attackMap[i];
                 if (recFreq === null && isSustain) {
-                    sliceError = 0;
+                    scored = false;
                 } else {
                     sliceError = 10;
                     totalError += 10;
                 }
             } else {
-                // Both have pitch - find closest octave match
-                // Check for 3x subharmonic issue before octave shifting
                 let correctedRecFreq = recFreq;
                 const ratio = refFreq / recFreq;
 
-                // If ratio is close to 3, apply 3x correction (subharmonic detection error)
                 if (ratio >= 2.85 && ratio <= 3.15) {
                     correctedRecFreq = recFreq * 3;
                 }
 
-                // Calculate which octave shift of correctedRecFreq is closest to refFreq
-                const octaveShift = Math.round(Math.log2(refFreq / correctedRecFreq));
-                const recFreqShifted = correctedRecFreq * Math.pow(2, octaveShift);
-
-                // Calculate frequency difference in cents (musical distance)
-                const cents = Math.abs(1200 * Math.log2(recFreqShifted / refFreq));
-
-                // Convert cents to error score (0 cents = 0 error, 100 cents = ~8.3 error)
-                // This makes it more forgiving for small pitch variations
-                sliceError = Math.min(cents / 12, 10); // Cap at 10 per slice
+                const octaveShift = Math.round(
+                    Math.log2(refFreq / correctedRecFreq)
+                );
+                const recFreqShifted = correctedRecFreq
+                    * Math.pow(2, octaveShift);
+                const cents = Math.abs(
+                    1200 * Math.log2(recFreqShifted / refFreq)
+                );
+                sliceError = Math.min(cents / 12, 10);
                 totalError += sliceError;
             }
 
-            // Debug: Store slice data with RMS and correlation info
+            if (scored) scoredCount++;
+
             const sliceInfo = {
                 startTime: i * this.sliceInterval,
                 expected: refFreq,
-                expectedNote: refFreq ? this.frequencyToNote(refFreq) : null,
+                expectedNote: refFreq
+                    ? this.frequencyToNote(refFreq) : null,
                 detected: recFreq,
-                error: sliceError
+                error: sliceError,
+                scored: scored
             };
 
-            // Add RMS and correlation data if available
             if (debugInfo && debugInfo[i]) {
                 sliceInfo.rms = debugInfo[i].rms;
                 sliceInfo.correlation = debugInfo[i].correlation;
@@ -454,12 +465,12 @@ const Matching = {
             }
 
             sliceData.push(sliceInfo);
+            sliceScored.push(scored);
         }
 
-        // Average error per slice (overall)
-        const avgError = minLength > 0 ? totalError / minLength : 100;
+        const avgError = scoredCount > 0
+            ? totalError / scoredCount : 100;
 
-        // Calculate per-note errors by grouping slices
         let maxNoteError = 0;
         const noteErrors = [];
 
@@ -469,18 +480,26 @@ const Matching = {
             pattern.notes.forEach((note, noteIndex) => {
                 const duration = pattern.durations[noteIndex];
                 const numSlices = Math.round(
-                    (duration * this.beatDuration) / this.sliceInterval
+                    (duration * this.beatDuration)
+                    / this.sliceInterval
                 );
 
                 let noteError = 0;
                 let slicesProcessed = 0;
 
-                for (let i = 0; i < numSlices && sliceIndex < minLength; i++, sliceIndex++) {
-                    noteError += sliceData[sliceIndex].error;
-                    slicesProcessed++;
+                for (
+                    let i = 0;
+                    i < numSlices && sliceIndex < minLength;
+                    i++, sliceIndex++
+                ) {
+                    if (sliceScored[sliceIndex]) {
+                        noteError += sliceData[sliceIndex].error;
+                        slicesProcessed++;
+                    }
                 }
 
-                const noteAvgError = slicesProcessed > 0 ? noteError / slicesProcessed : 0;
+                const noteAvgError = slicesProcessed > 0
+                    ? noteError / slicesProcessed : 0;
                 noteErrors.push(noteAvgError);
 
                 if (noteAvgError > maxNoteError) {
@@ -488,10 +507,14 @@ const Matching = {
                 }
             });
 
-            console.log('Per-note errors:', noteErrors.map(e => e.toFixed(2)));
-            console.log('Max note error:', maxNoteError.toFixed(2));
+            console.log(
+                'Per-note errors:',
+                noteErrors.map(e => e.toFixed(2))
+            );
+            console.log(
+                'Max note error:', maxNoteError.toFixed(2)
+            );
         } else {
-            // Fallback if pattern not provided
             maxNoteError = avgError;
         }
 
