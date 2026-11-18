@@ -86,11 +86,11 @@ const StaffRenderer = {
         const staveWidth = 280;
         const width = staveWidth + 40;
 
-        renderer.resize(width, 260);
+        renderer.resize(width, 200);
         const context = renderer.getContext();
 
         const trebleStave = new VF.Stave(
-            30, 20, staveWidth
+            30, 10, staveWidth
         );
         trebleStave.addClef('treble');
         trebleStave.setContext(context).draw();
@@ -99,7 +99,7 @@ const StaffRenderer = {
         );
 
         const bassStave = new VF.Stave(
-            30, 130, staveWidth
+            30, 100, staveWidth
         );
         bassStave.addClef('bass');
         bassStave.setContext(context).draw();
