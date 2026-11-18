@@ -275,12 +275,33 @@ const Matching = {
         return freq;
     },
 
+    // Build a map indicating which slices are note attacks
+    // vs sustain (where silence from decay is expected)
+    buildSliceAttackMap: function(pattern) {
+        if (!pattern || !pattern.notes || !pattern.durations) {
+            return null;
+        }
+        const map = [];
+        pattern.notes.forEach((note, noteIndex) => {
+            const duration = pattern.durations[noteIndex];
+            const numSlices = Math.round(
+                (duration * this.beatDuration)
+                / this.sliceInterval
+            );
+            for (let i = 0; i < numSlices; i++) {
+                map.push(i === 0);
+            }
+        });
+        return map;
+    },
+
     // Calculate error for alignment search (no debug output)
     // Returns both avgError and maxNoteError to optimize for passing dual threshold
     calculateErrorForAlignment: function(reference, recorded, pattern) {
         const minLength = Math.min(reference.length, recorded.length);
         let totalError = 0;
         const sliceErrors = [];
+        const attackMap = this.buildSliceAttackMap(pattern);
 
         for (let i = 0; i < minLength; i++) {
             const refFreq = reference[i];
@@ -290,8 +311,16 @@ const Matching = {
             if (refFreq === null && recFreq === null) {
                 sliceError = 0;
             } else if (refFreq === null || recFreq === null) {
-                sliceError = 10;
-                totalError += 10;
+                // Forgive silence on sustain slices (sound decay)
+                const isSustain = attackMap
+                    && i < attackMap.length
+                    && !attackMap[i];
+                if (recFreq === null && isSustain) {
+                    sliceError = 0;
+                } else {
+                    sliceError = 10;
+                    totalError += 10;
+                }
             } else {
                 // Check for 3x subharmonic issue before octave shifting
                 let correctedRecFreq = recFreq;
@@ -363,6 +392,8 @@ const Matching = {
             ? Debug.currentData.timing.debugInfo
             : null;
 
+        const attackMap = this.buildSliceAttackMap(pattern);
+
         for (let i = 0; i < minLength; i++) {
             const refFreq = reference[i];
             const recFreq = recorded[i];
@@ -372,9 +403,16 @@ const Matching = {
                 // Both silence - perfect match
                 sliceError = 0;
             } else if (refFreq === null || recFreq === null) {
-                // One is silence, one is not - large error
-                sliceError = 10;
-                totalError += 10;
+                // Forgive silence on sustain slices (sound decay)
+                const isSustain = attackMap
+                    && i < attackMap.length
+                    && !attackMap[i];
+                if (recFreq === null && isSustain) {
+                    sliceError = 0;
+                } else {
+                    sliceError = 10;
+                    totalError += 10;
+                }
             } else {
                 // Both have pitch - find closest octave match
                 // Check for 3x subharmonic issue before octave shifting
